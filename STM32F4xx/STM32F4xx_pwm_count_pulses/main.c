@@ -142,6 +142,10 @@ int main(void) {
   /* Iniciar PWM en TIM3_CH3 (PB0) */
   //start_pwm_pulses_tim3(500);
 
+  // TODO: Es necesario encapsular el metodo y que este reciba como parametros
+  // Posición deseada, y velocidad. Automaticamente debe ser capaz de calcular
+  // el numero de pulsos del PWM y la dirección. 
+
   while(1){
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
         HAL_Delay(1000);
