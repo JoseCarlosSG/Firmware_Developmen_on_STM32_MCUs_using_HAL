@@ -1,4 +1,5 @@
 import serial
+import time
 import serial.tools.list_ports
 
 ports = serial.tools.list_ports.comports()
@@ -25,7 +26,9 @@ ser = serial.Serial(
 #    ser.close()  # Asegúrate de cerrar el puerto serie
 
 while True:
-    ser.write(b'HolaMundo\n')
+    ser.write(b'cnpos0.00vel0.00\n')
+    time.sleep(0.1)
     data = ser.readline().decode('utf-8') # Lee una línea completa
     print(f'Datos recibidos: {data}')
+    time.sleep(0.1)
 
