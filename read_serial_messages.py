@@ -25,7 +25,7 @@ ser = serial.Serial(
 #    ser.close()  # Asegúrate de cerrar el puerto serie
 
 while True:
-
+    ser.write(b'HolaMundo\n')
     data = ser.readline().decode('utf-8') # Lee una línea completa
     print(f'Datos recibidos: {data}')
 

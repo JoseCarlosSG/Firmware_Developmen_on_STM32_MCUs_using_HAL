@@ -106,6 +106,71 @@ void set_pwm_frequency(TIM_HandleTypeDef *htim, uint32_t freq, uint32_t channel)
     __HAL_TIM_SET_COMPARE(htim, channel, arr / 2);
 }
 
+void desplazar_eje_x(float x, float vx, int dir){
+
+    /*
+    Este metodo emplea el pwm del temporizador 1
+    para desplazar el eje x.
+
+    Parametros:
+    dir: direccion de desplazamiento [+ o -]
+    vx: velocidad del eje x [m/s]
+    x: posición del eje x [m]
+    */
+
+    if(dir){
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        HAL_Delay(1000);
+    }else{
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+    }
+    // pasos_por_segundo = v * (pasos_revolucion/paso_husillo)
+    // Considerando full step del motor y un husillo de 8mm de 
+    // avance 200/0.008 = 25000
+    int pasos_por_segundo = vx * 25000; 
+    /* Setear frecuencia en htim1 (PA8) */
+    set_pwm_frequency(&htim1, pasos_por_segundo, 1);
+  
+    /* Setear el numero de pulsos deseado*/
+    // numero_de_pasos = x * (pasos_por_revolucion / paso_husillo)
+    // Considerando full step del motor y un husillo de 8mm de 
+    // avance 200/0.008 = 25000
+    int numero_pasos = x * 25000;
+    start_pwm_pulses_tim1(numero_pasos);
+}
+
+void desplazar_eje_y(float y, float vy, int dir){
+    /*
+    Este metodo emplea el pwm del temporizador 3
+    para desplazar el eje y.
+
+    Parametros:
+    dir: direccion de desplazamiento [+ o -]
+    vy: velocidad del eje [m/s]
+    y: posición del eje x [m]
+    */
+
+    if(dir){
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+        HAL_Delay(1000);
+    }else{
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
+    }
+    // pasos_por_segundo = v * (pasos_revolucion/paso_husillo)
+    // Considerando full step del motor y un husillo de 8mm de 
+    // avance 200/0.008 = 25000
+    int pasos_por_segundo = vy * 25000; 
+    /* Setear frecuencia en htim3 */
+    set_pwm_frequency(&htim3, pasos_por_segundo, 3);
+
+    /* Setear el numero de pulsos deseado*/
+    // numero_de_pasos = y * (pasos_por_revolucion / paso_husillo)
+    // Considerando full step del motor y un husillo de 8mm de 
+    // avance 200/0.008 = 25000
+    int numero_pasos = y * 25000;
+    /* Iniciar PWM en TIM3_CH3 (PB0) */
+    start_pwm_pulses_tim3(numero_pasos);
+}
 
 int main(void) {
 
@@ -130,28 +195,57 @@ int main(void) {
   HAL_NVIC_SetPriority(TIM3_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(TIM3_IRQn);
   
-  /* Setear frecuencia en htim1 (PA8) */
-  //set_pwm_frequency(&htim1, 100, 1);
-  
-  /* Setear el numero de pulsos deseado*/
-  //start_pwm_pulses_tim1(500);
+  desplazar_eje_x(0.1, 0.005, 1);
+  //desplazar_eje_x(0.1, 0.005, 0);
 
-  /* Setear frecuencia en htim3 */
-  //set_pwm_frequency(&htim3, 100, 3);
 
-  /* Iniciar PWM en TIM3_CH3 (PB0) */
-  //start_pwm_pulses_tim3(500);
+  /*
+  Algoritmo:
+  1. Al activarse los finales de carrera, deben desabilitarse los pwm.
+  2.    
+  */
 
   // TODO: Es necesario encapsular el metodo y que este reciba como parametros
   // Posición deseada, y velocidad. Automaticamente debe ser capaz de calcular
   // el numero de pulsos del PWM y la dirección. 
 
-  while(1){
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-        HAL_Delay(1000);
-        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);
-        HAL_Delay(1000);
+  /****************** MAQUINA DE ESTADOS **********************/
+  typedef enum{
+    ESTADO_ESPERA,
+    ESTADO_RETORNO_A_CASA,
+    ESTADO_OPERACION,
+  }EstadoRobot_t;
+
+EstadoRobot_t estado_actual = ESTADO_ESPERA;
+
+void maquina_estados_robot(void){
+    switch(estado_actual){
+        case ESTADO_ESPERA:
+            /*
+            Esperando comandos
+            */
+            break;
+
+        case ESTADO_RETORNO_A_CASA:
+            /*
+            Ejecutando movimiento eje X
+            */
+            break;
+
+        case ESTADO_OPERACION:
+            /*
+            Los movimientos se enviaran uno a uno
+            desde la computadora. 
+            */
+            break;
     }
+}
+
+  while(1){
+      //leer_entradas();
+      maquina_estados_robot();
+      //actualizar_salidas();
+  }
 }
 
 #ifdef  USE_FULL_ASSERT
