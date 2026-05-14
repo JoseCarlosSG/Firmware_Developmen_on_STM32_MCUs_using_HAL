@@ -1,4 +1,4 @@
-PROJECT_DIR=/home/carlos/Documents/Firmware_Developmen_on_STM32_MCUs_using_HAL/STM32F4xx/
+PROJECT_DIR=/home/carlos/Desktop/Professional_Development_Seminar_Project/Software_Robot_Cartesiano/STM32F4xx
 # Directorio de la implementación.
 APP_DIR=$(PROJECT_DIR)/STM32F4xx_pwm_count_pulses
 # Rename bin and elf output file here
